@@ -1,0 +1,14 @@
+Description: (Describe migration here.)
+Created: 2016-10-29 23:34:29.414125 UTC
+Depends:
+Apply: |
+  CREATE TABLE comments (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    topic_id INT UNSIGNED NOT NULL,
+    body TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  );
+  CREATE INDEX index_comments_on_topic_id ON comments(topic_id);
+Revert: |
+  DROP TABLE comments;
