@@ -28,6 +28,10 @@ appCfg = defaultSpockCfg () (PCConn dbConnectionBuilder) ()
 
 app :: SpockM Connection () () ()
 app = do
+    get "topics" $ do
+      xs <- runQuery $ \conn -> do
+        query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
+      json $ map (\(i, n) -> Topic i n) xs
     post "topics" $ do
       (RequestedTopic n) <- jsonBody'
       [Only i] <- runQuery $ \conn -> do
