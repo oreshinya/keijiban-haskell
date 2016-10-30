@@ -27,6 +27,7 @@ executable keijiban-exe
                      , mysql-simple
                      , dbmigrations
                      , dbmigrations-mysql
+                     , aeson
                      , Spock >=0.11
                      , keijiban
   default-language:    Haskell2010
