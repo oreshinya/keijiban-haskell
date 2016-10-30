@@ -1,7 +1,17 @@
 flags: {}
+
 extra-package-dbs: []
+
 packages:
 - '.'
+- location:
+    git: https://github.com/agrafix/Spock.git
+    commit: 77333a2de5dea0dc8eba9432ab16864e93e5d70e
+  subdirs:
+    - Spock
+    - Spock-core
+    - reroute
+
 extra-deps:
 - HsSyck-0.53
 - dbmigrations-2.0.0
@@ -9,4 +19,5 @@ extra-deps:
 - mysql-0.1.3
 - mysql-simple-0.4.0.0
 - yaml-light-0.1.4
+
 resolver: lts-7.5
