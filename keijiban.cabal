@@ -17,9 +17,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
-                     , mysql-simple
-                     , dbmigrations
-                     , dbmigrations-mysql
   default-language:    Haskell2010
 
 executable keijiban-exe
@@ -27,6 +24,9 @@ executable keijiban-exe
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
+                     , mysql-simple
+                     , dbmigrations
+                     , dbmigrations-mysql
                      , Spock >=0.11
                      , keijiban
   default-language:    Haskell2010
