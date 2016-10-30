@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Web.Spock
@@ -9,7 +10,7 @@ import GHC.Generics (Generic)
 import Data.Aeson hiding (json)
 
 data RequestedTopic = RequestedTopic { val :: String } deriving (Generic, Show)
-data Topic = Topic { id :: Integer, name :: String } deriving (Generic, Show)
+data Topic = Topic { id :: Int, name :: String } deriving (Generic, Show)
 
 instance FromJSON RequestedTopic
 instance ToJSON Topic
@@ -30,9 +31,10 @@ app :: SpockM Connection () () ()
 app = do
     post "topics" $ do
       (RequestedTopic n) <- jsonBody'
-      runQuery $ \conn -> do
+      [Only i] <- runQuery $ \conn -> do
         execute conn "INSERT INTO topics (name) VALUES (?)" [n]
-      json $ Topic 1 n
+        query_ conn "SELECT LAST_INSERT_ID()"
+      json $ Topic i n
 
 
 main :: IO ()
