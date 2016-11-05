@@ -6,6 +6,7 @@ import Web.Spock
 import Web.Spock.Config
 import Database.MySQL.Simple
 import qualified Topic as T (Topic(..), RequestedTopic(..))
+import qualified Comment as C (Comment(..), RequestedComment(..))
 
 openDBConnection :: IO Connection
 openDBConnection = connect defaultConnectInfo { connectDatabase = "keijiban" }
@@ -21,22 +22,29 @@ appCfg = defaultSpockCfg () (PCConn dbConnectionBuilder) ()
 
 app :: SpockM Connection () () ()
 app = do
-    get "topics" $ do
-      xs <- runQuery $ \conn -> do
-        query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
-      json $ map (\(i, n) -> T.Topic i n) xs
-
-    get ("topics" <//> var) $ \(x :: Int) -> do
-      t:ts <- runQuery $ \conn -> do
-        query conn "SELECT id, name FROM topics WHERE id = ?" [x]
-      json $ T.Topic (fst t) (snd t)
-
     post "topics" $ do
       (T.RequestedTopic n) <- jsonBody'
       (Only i:_) <- runQuery $ \conn -> do
         execute conn "INSERT INTO topics (name) VALUES (?)" [n]
         query_ conn "SELECT LAST_INSERT_ID()"
       json $ T.Topic i n
+
+    get "topics" $ do
+      xs <- runQuery $ \conn -> do
+        query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
+      json $ map (\(i, n) -> T.Topic i n) xs
+
+    post ("topics" <//> var <//> "comments") $ \(x :: Int) -> do
+      (C.RequestedComment b) <- jsonBody'
+      (Only i:_) <- runQuery $ \conn -> do
+        execute conn "INSERT INTO comments (topic_id, body) VALUES (?, ?)" (x :: Int, b :: String)
+        query_ conn "SELECT LAST_INSERT_ID()"
+      json $ C.Comment i x b
+
+    get ("topics" <//> var <//> "comments") $ \(x :: Int) -> do
+      xs <- runQuery $ \conn -> do
+        query conn "SELECT id, topic_id, body FROM comments WHERE topic_id = ?" [x]
+      json $ map (\(id, topicId, body) -> C.Comment id topicId body) xs
 
 main :: IO ()
 main = do
