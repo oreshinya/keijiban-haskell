@@ -32,9 +32,10 @@ app = do
       xs <- runQuery $ \conn -> do
         query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
       json $ map (\(i, n) -> Topic i n) xs
+
     post "topics" $ do
       (RequestedTopic n) <- jsonBody'
-      [Only i] <- runQuery $ \conn -> do
+      (Only i:_) <- runQuery $ \conn -> do
         execute conn "INSERT INTO topics (name) VALUES (?)" [n]
         query_ conn "SELECT LAST_INSERT_ID()"
       json $ Topic i n
