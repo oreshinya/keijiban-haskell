@@ -1,19 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Web.Spock
 import Web.Spock.Config
 import Database.MySQL.Simple
-import GHC.Generics (Generic)
-import Data.Aeson hiding (json)
-
-data RequestedTopic = RequestedTopic { val :: String } deriving (Generic, Show)
-data Topic = Topic { id :: Int, name :: String } deriving (Generic, Show)
-
-instance FromJSON RequestedTopic
-instance ToJSON Topic
+import qualified Topic as T (Topic(..), RequestedTopic(..))
 
 openDBConnection :: IO Connection
 openDBConnection = connect defaultConnectInfo { connectDatabase = "keijiban" }
@@ -32,20 +24,19 @@ app = do
     get "topics" $ do
       xs <- runQuery $ \conn -> do
         query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
-      json $ map (\(i, n) -> Topic i n) xs
+      json $ map (\(i, n) -> T.Topic i n) xs
 
     get ("topics" <//> var) $ \(x :: Int) -> do
       t:ts <- runQuery $ \conn -> do
         query conn "SELECT id, name FROM topics WHERE id = ?" [x]
-      json $ Topic (fst t) (snd t)
+      json $ T.Topic (fst t) (snd t)
 
     post "topics" $ do
-      (RequestedTopic n) <- jsonBody'
+      (T.RequestedTopic n) <- jsonBody'
       (Only i:_) <- runQuery $ \conn -> do
         execute conn "INSERT INTO topics (name) VALUES (?)" [n]
         query_ conn "SELECT LAST_INSERT_ID()"
-      json $ Topic i n
-
+      json $ T.Topic i n
 
 main :: IO ()
 main = do

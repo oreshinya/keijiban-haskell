@@ -31,6 +31,8 @@ executable keijiban-exe
                      , Spock >=0.11
                      , keijiban
   default-language:    Haskell2010
+  other-modules: Topic
+               , Comment
 
 test-suite keijiban-test
   type:                exitcode-stdio-1.0
