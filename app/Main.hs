@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Web.Spock
@@ -32,6 +33,11 @@ app = do
       xs <- runQuery $ \conn -> do
         query_ conn "SELECT id, name FROM topics ORDER BY id DESC"
       json $ map (\(i, n) -> Topic i n) xs
+
+    get ("topics" <//> var) $ \(x :: Int) -> do
+      t:ts <- runQuery $ \conn -> do
+        query conn "SELECT id, name FROM topics WHERE id = ?" [x]
+      json $ Topic (fst t) (snd t)
 
     post "topics" $ do
       (RequestedTopic n) <- jsonBody'
