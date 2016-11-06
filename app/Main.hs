@@ -4,8 +4,9 @@ module Main where
 
 import Web.Spock
 import Web.Spock.Config
+import Network.HTTP.Types.Status
 import Database.MySQL.Simple
-import qualified TopicParams as TP (Params(..))
+import qualified TopicParams as TP (Params(..), CheckedParams(..), validateParams)
 import qualified Topic as T (Topic(..))
 import qualified CommentParams as CP (Params(..))
 import qualified Comment as C (Comment(..))
@@ -25,11 +26,15 @@ appCfg = defaultSpockCfg () (PCConn dbConnectionBuilder) ()
 app :: SpockM Connection () () ()
 app = do
     post "topics" $ do
-      (TP.Params (Just n)) <- jsonBody'
-      (Only i:_) <- runQuery $ \conn -> do
-        execute conn "INSERT INTO topics (name) VALUES (?)" [n]
-        query_ conn "SELECT LAST_INSERT_ID()"
-      json $ T.Topic i n
+      params <- jsonBody'
+      case (TP.validateParams params) of
+        (Left message) -> setStatus status400 >> json message
+        (Right (TP.CheckedParams n)) -> do
+          setStatus status201
+          (Only i:_) <- runQuery $ \conn -> do
+            execute conn "INSERT INTO topics (name) VALUES (?)" [n]
+            query_ conn "SELECT LAST_INSERT_ID()"
+          json $ T.Topic i n
 
     get "topics" $ do
       xs <- runQuery $ \conn -> do
