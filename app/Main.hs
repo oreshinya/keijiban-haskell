@@ -5,6 +5,7 @@ module Main where
 import Web.Spock
 import Web.Spock.Config
 import Network.HTTP.Types.Status
+import Network.Wai.Middleware.RequestLogger
 import Database.MySQL.Simple
 import qualified TopicParams as TP (Params(..), CheckedParams(..), validateParams)
 import qualified Topic as T (Topic(..))
@@ -60,4 +61,4 @@ app = do
 main :: IO ()
 main = do
     spockCfg <- appCfg
-    runSpock 8080 (spock spockCfg app)
+    runSpock 8080 $ fmap (logStdoutDev.) $ spock spockCfg app

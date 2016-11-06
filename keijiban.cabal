@@ -24,6 +24,7 @@ executable keijiban-exe
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
+                     , wai-extra
                      , validate-input
                      , mysql-simple
                      , dbmigrations
