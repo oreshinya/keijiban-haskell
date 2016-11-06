@@ -8,7 +8,7 @@ import Network.HTTP.Types.Status
 import Database.MySQL.Simple
 import qualified TopicParams as TP (Params(..), CheckedParams(..), validateParams)
 import qualified Topic as T (Topic(..))
-import qualified CommentParams as CP (Params(..))
+import qualified CommentParams as CP (Params(..), CheckedParams(..), validateParams)
 import qualified Comment as C (Comment(..))
 
 openDBConnection :: IO Connection
@@ -42,11 +42,15 @@ app = do
       json $ map (\(i, n) -> T.Topic i n) xs
 
     post ("topics" <//> var <//> "comments") $ \(x :: Int) -> do
-      (CP.Params (Just b)) <- jsonBody'
-      (Only i:_) <- runQuery $ \conn -> do
-        execute conn "INSERT INTO comments (topic_id, body) VALUES (?, ?)" (x :: Int, b :: String)
-        query_ conn "SELECT LAST_INSERT_ID()"
-      json $ C.Comment i x b
+      params <- jsonBody'
+      case (CP.validateParams params) of
+        (Left message) -> setStatus status400 >> json message
+        (Right (CP.CheckedParams b)) -> do
+          setStatus status201
+          (Only i:_) <- runQuery $ \conn -> do
+            execute conn "INSERT INTO comments (topic_id, body) VALUES (?, ?)" (x :: Int, b :: String)
+            query_ conn "SELECT LAST_INSERT_ID()"
+          json $ C.Comment i x b
 
     get ("topics" <//> var <//> "comments") $ \(x :: Int) -> do
       xs <- runQuery $ \conn -> do
