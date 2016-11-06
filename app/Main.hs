@@ -5,8 +5,10 @@ module Main where
 import Web.Spock
 import Web.Spock.Config
 import Database.MySQL.Simple
-import qualified Topic as T (Topic(..), RequestedTopic(..))
-import qualified Comment as C (Comment(..), RequestedComment(..))
+import qualified TopicParams as TP (Params(..))
+import qualified Topic as T (Topic(..))
+import qualified CommentParams as CP (Params(..))
+import qualified Comment as C (Comment(..))
 
 openDBConnection :: IO Connection
 openDBConnection = connect defaultConnectInfo { connectDatabase = "keijiban" }
@@ -23,7 +25,7 @@ appCfg = defaultSpockCfg () (PCConn dbConnectionBuilder) ()
 app :: SpockM Connection () () ()
 app = do
     post "topics" $ do
-      (T.RequestedTopic n) <- jsonBody'
+      (TP.Params (Just n)) <- jsonBody'
       (Only i:_) <- runQuery $ \conn -> do
         execute conn "INSERT INTO topics (name) VALUES (?)" [n]
         query_ conn "SELECT LAST_INSERT_ID()"
@@ -35,7 +37,7 @@ app = do
       json $ map (\(i, n) -> T.Topic i n) xs
 
     post ("topics" <//> var <//> "comments") $ \(x :: Int) -> do
-      (C.RequestedComment b) <- jsonBody'
+      (CP.Params (Just b)) <- jsonBody'
       (Only i:_) <- runQuery $ \conn -> do
         execute conn "INSERT INTO comments (topic_id, body) VALUES (?, ?)" (x :: Int, b :: String)
         query_ conn "SELECT LAST_INSERT_ID()"
