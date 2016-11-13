@@ -1,0 +1,2 @@
+# Keijiban
+For training Haskell.
