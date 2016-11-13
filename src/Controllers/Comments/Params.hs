@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
-module CommentParams where
+module Controllers.Comments.Params where
 
 import GHC.Generics (Generic)
 import Data.Aeson

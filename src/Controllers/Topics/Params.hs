@@ -1,5 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
-module TopicParams where
+module Controllers.Topics.Params where
 
 import GHC.Generics (Generic)
 import Data.Aeson

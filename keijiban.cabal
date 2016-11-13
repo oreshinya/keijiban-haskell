@@ -15,8 +15,19 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     Controllers.Topics.Actions
+                     , Controllers.Comments.Actions
+  other-modules:       Controllers.Topics.Params
+                     , Controllers.Comments.Params
+                     , Models.Topic
+                     , Models.Comment
   build-depends:       base >= 4.7 && < 5
+                     , validate-input
+                     , mysql-simple
+                     , aeson
+                     , http-types
+                     , Spock-core >=0.11
+                     , Spock >=0.11
   default-language:    Haskell2010
 
 executable keijiban-exe
@@ -25,20 +36,12 @@ executable keijiban-exe
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , wai-extra
-                     , validate-input
                      , mysql-simple
                      , dbmigrations
                      , dbmigrations-mysql
-                     , aeson
-                     , http-types
-                     , Spock-core >=0.11
                      , Spock >=0.11
                      , keijiban
   default-language:    Haskell2010
-  other-modules:       Topic
-                     , Comment
-                     , TopicParams
-                     , CommentParams
 
 test-suite keijiban-test
   type:                exitcode-stdio-1.0
