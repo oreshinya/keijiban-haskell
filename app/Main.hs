@@ -4,6 +4,7 @@ module Main where
 import Web.Spock
 import Web.Spock.Config
 import Network.Wai.Middleware.RequestLogger
+import Network.Wai.Middleware.Cors
 import Database.MySQL.Simple
 import Controllers.Topics.Actions as CT
 import Controllers.Comments.Actions as CC
@@ -30,4 +31,4 @@ app = do
 main :: IO ()
 main = do
     spockCfg <- appCfg
-    runSpock 8080 $ fmap (logStdoutDev.) $ spock spockCfg app
+    runSpock 8080 $ ((logStdoutDev . simpleCors).) <$> spock spockCfg app
