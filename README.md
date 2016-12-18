@@ -1,2 +1,2 @@
 # Keijiban
-For training Haskell.
+Haskell playground.
