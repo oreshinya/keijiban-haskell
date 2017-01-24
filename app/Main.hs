@@ -1,16 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Web.Spock
-import Web.Spock.Config
-import Network.Wai.Middleware.RequestLogger
-import Network.Wai.Middleware.Cors
-import Database.MySQL.Simple
-import Controllers.Topics.Actions as CT
-import Controllers.Comments.Actions as CC
+import           Controllers.Comments.Actions         as CC
+import           Controllers.Topics.Actions           as CT
+import           Database.MySQL.Simple
+import           Network.Wai.Middleware.Cors
+import           Network.Wai.Middleware.RequestLogger
+import           Web.Spock
+import           Web.Spock.Config
 
 openDBConnection :: IO Connection
-openDBConnection = connect defaultConnectInfo { connectDatabase = "keijiban" }
+openDBConnection = connect defaultConnectInfo
+  { connectDatabase = "keijiban"
+  , connectHost = "db"
+  , connectPassword = "password"
+  }
 
 closeDBConnection :: Connection -> IO ()
 closeDBConnection = close
